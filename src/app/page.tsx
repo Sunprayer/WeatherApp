@@ -2,10 +2,13 @@
 
 import Container from "@/components/Container";
 import Navbar from "@/components/Navbar";
+import WeatherDetails from "@/components/WeatherDetails";
 import WeatherIcon from "@/components/WeatherIcon";
 import { convertTemperature } from "@/utils/convertKalvinToCelsius";
+import { mToKm } from "@/utils/mToKm";
+import { mToKmPerHour } from "@/utils/mToKmPerHour";
 import axios from "axios";
-import { format, parseISO } from "date-fns";
+import { format, fromUnixTime, parseISO } from "date-fns";
 import { useQuery } from "react-query";
 
 interface WeatherDetail {
@@ -85,7 +88,7 @@ export default function Home() {
       </div>
     );
   return (
-    <div className="flex flex-col gap-4 bg-gray-100 mi-h-screen">
+    <div className="flex flex-col gap-4 bg-gray-100 min-h-screen">
       <Navbar />
       <main className="px-3 max-w-7x1 mx-auto flex flex-col gap-9 w-full pb-10 pt-4">
         <section className="space-y-4">
@@ -132,8 +135,38 @@ export default function Home() {
               </div>
             </Container>
           </div>
+          <div className="flex gap-4">
+            <Container className="w-fit justify-center flex-col px-4 items-center">
+              <p className="capitalize text-center">
+                {firstData?.weather[0].description}
+              </p>
+              <WeatherIcon
+                iconName={
+                  (firstData?.weather[0].icon ?? "", firstData?.dt_txt ?? "")
+                }
+              />
+            </Container>
+            <Container className="bg-yellow-300/80 px-6 gap-4 justify-between overflow-x-auto">
+              <WeatherDetails
+                visability={mToKm(firstData?.visibility ?? 10000)}
+                airPressure={`${firstData?.main.pressure} hPa`}
+                humidity={`${firstData?.main.humidity} %`}
+                sunrise={format(
+                  fromUnixTime(data?.city.sunrise ?? 1234567654),
+                  "H:mm"
+                )}
+                sunset={format(
+                  fromUnixTime(data?.city.sunset ?? 1234567654),
+                  "H:mm"
+                )}
+                windSpeed={mToKmPerHour(firstData?.wind.speed ?? 3.5)}
+              />
+            </Container>
+          </div>
         </section>
-        <section></section>
+        <section className="flex w-full flex-col gap-4">
+          <p className="text-2xl">Weekly forecast</p>
+        </section>
       </main>
     </div>
   );
